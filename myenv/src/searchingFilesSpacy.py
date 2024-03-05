@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import spacy
 from spacy.matcher import PhraseMatcher
 from IPython.display import display, HTML
+import webbrowser
 
 text = ''
 
@@ -33,27 +34,30 @@ pln = spacy.load("pt_core_news_sm")
 # The word to be searched inside all text
 string = 'turing'
 
+# Setting the token word inside the vocabulary
 token_search = pln(string)
 
+# Setting up the methods
 matcher = PhraseMatcher(pln.vocab)
 matcher.add('SEARCH', None, token_search)
 
+# Finding the word inside the text
 doc = pln(content)
 matches = matcher(doc)
-print(matches)
-print(doc[3463:3464])
 
 words_number = 50
-doc = pln(content)
-matches = matcher(doc)
 
-display(HTML(f'<h1>{string.upper()}</h1>'))
-display(HTML(f"""<p><strong>Resultados encontrados {len(matches)}</strong></p>"""))
+# Creating a HTML document with the results and phrases surround
+# marked to note it better
+with open('output.html', 'w') as f:
+    f.write(f'<h1>{string.upper()}</h1>')
+    f.write(f'<p><strong>Resultados encontrados {len(matches)}</strong></p>')
+    for i in matches:
+        begin = i[1] - words_number
+        if begin < 0:
+            begin = 0
+        text += str(doc[begin:i[2] + words_number]).replace(string, f"<mark>{string}</mark>")
+        text += "<br/><br/>"
+    f.write(text)
 
-for i in matches:
-    begin = i[1] - words_number
-    if begin < 0:
-        begin = 0
-    text += str(doc[begin:i[2] + words_number]).replace(string, f"<mark>{string}</mark>")
-    text += "<br/><br/>"
-display(HTML(f"""... {text} ..."""))
+webbrowser.open('output.html')
