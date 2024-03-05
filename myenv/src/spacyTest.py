@@ -1,5 +1,4 @@
 import bs4 as bs
-import urllib.request
 import spacy
 
 pln = spacy.load('pt_core_news_sm')
